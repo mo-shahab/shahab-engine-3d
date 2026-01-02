@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <glad/gl.h>
+#include <string>
 
 struct Vertex{
     glm::vec3 position;
@@ -14,9 +15,12 @@ struct Vertex{
 
 class Mesh {
     public: 
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+        bool m_isVisible = true;
+        std::string m_name;
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, const std::string& name = "Unnamed Mesh");
         void drawMesh();
         ~Mesh();
+
     private:
         std::vector<Vertex> m_vertices;
         std::vector<unsigned int> m_indices;

@@ -1,7 +1,10 @@
-#include "Mesh.h"
+#include "scene/Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices) 
-    : m_vertices(vertices), m_indices(indices), m_VAO(0), m_VBO(0), m_EBO(0) 
+Mesh::Mesh(std::vector<Vertex> vertices
+    , std::vector<unsigned int> indices
+    , const std::string& name
+) 
+    : m_vertices(vertices), m_indices(indices), m_name(name), m_VAO(0), m_VBO(0), m_EBO(0) 
 {
     setupMesh(); 
 }

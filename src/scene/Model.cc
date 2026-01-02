@@ -1,10 +1,13 @@
-#include "model.h"
+#include "scene/Model.h"
 
 // implementing the constructor
 Model::Model(const std::string& filePath)
 : 
     m_filePath(filePath),
     m_scene(nullptr),
+    m_position(glm::vec3(0.0f)),
+    m_rotation(glm::vec3(0.0f)),
+    m_scale(glm::vec3(1.0f)),
     m_rootNode(nullptr), 
     m_numMeshes(0) {
 
@@ -34,9 +37,12 @@ Model::Model(const std::string& filePath)
 void Model::processMeshes() {
     for(unsigned int i = 0; i < m_numMeshes; i++) {
         aiMesh* mesh = m_scene->mMeshes[i];
+        // mesh->m_isVisible = true; 
 
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
+
+        std::string meshName = mesh->mName.C_Str();
 
         for(unsigned int v = 0; v < mesh->mNumVertices; v++) {
             Vertex vertex;
@@ -75,13 +81,37 @@ void Model::processMeshes() {
             }
         }
 
-        m_meshes.emplace_back(vertices, indices);
+        m_meshes.emplace_back(vertices, indices, meshName);
     }
+}
+
+void Model::draw(Shader& shader) {
+
+    glm::mat4 transform = glm::mat4(1.0f);
+    
+    // transformations
+    transform = glm::translate(transform, m_position);
+
+
+    // rotations
+    transform = glm::rotate(transform, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+    // scaling
+    transform = glm::scale(transform, glm::vec3(m_scale));
+    
+    shader.setMat4("u_Model", transform);
+
+    drawModel();
 }
 
 void Model::drawModel()  {
     for(auto& mesh : m_meshes) {
-        mesh.drawMesh();
+        // this is for that check box list and stuff so yeah
+        if(mesh.m_isVisible) {
+            mesh.drawMesh();
+        }
     }
 }
 

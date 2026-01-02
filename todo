@@ -1,0 +1,32 @@
+src/
+├── core/
+│   ├── Application.cc
+│   ├── Application.h
+│   ├── Window.cc
+│   ├── Window.h
+│   └── Time.h
+│
+├── renderer/
+│   ├── Renderer.cc
+│   ├── Renderer.h
+│   └── RenderContext.h
+│
+├── scene/
+│   ├── Scene.cc
+│   ├── Scene.h
+│
+├── input/
+│   ├── Input.cc
+│   └── Input.h
+│
+├── ui/
+│   ├── ImGuiLayer.cc
+│   └── ImGuiLayer.h
+│
+├── Main.cc
+
+
+seperate the code like
+1. what to draw
+2. how to draw
+3. how to run 

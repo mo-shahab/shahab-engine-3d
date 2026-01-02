@@ -2,3 +2,6 @@ build/
 glad_generated/
 bugatti/
 bugatti*
+
+glad_generated*
+vendor/

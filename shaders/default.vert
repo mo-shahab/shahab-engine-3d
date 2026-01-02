@@ -4,12 +4,12 @@ layout (location = 1) in vec3 aNormal;
 
 out vec3 Normal; 
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 u_Model;
+uniform mat4 u_View;
+uniform mat4 u_Projection;
 
 void main() {
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = u_Projection * u_View * u_Model * vec4(aPos, 1.0);
     // Pass the normal to the fragment shader
-    Normal = mat3(transpose(inverse(model))) * aNormal; 
+    Normal = mat3(transpose(inverse(u_Model))) * aNormal; 
 }

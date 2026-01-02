@@ -1,4 +1,4 @@
-#include "Shaders.h"
+#include "renderer/Shaders.h"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
 
@@ -85,4 +85,21 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type) {
             std::cerr << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     } 
+}
+
+// all the utilities
+void Shader::setBool(const std::string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(m_ID, name.c_str()), (int)value);
+}
+
+void Shader::setInt(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(m_ID, name.c_str()), value);
+}
+
+void Shader::setFloat(const std::string &name, float value) const {
+    glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);
+}
+
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
+    glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
