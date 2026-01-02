@@ -1,0 +1,6 @@
+Install dependencies before building.
+
+Note: used arch based system, please do refer for the library names as per your
+distributions 
+
+sudo pacman -S glfw-x11 assimp glm
