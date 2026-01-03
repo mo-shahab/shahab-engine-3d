@@ -15,6 +15,7 @@ Application::Application(const std::string& title)
 
     Renderer::init(); // static method to initialize the renderer
     Input::init(m_mainWindow->getNativeWindow()); // static method to initialize input system
+    ImguiLayer::init(m_mainWindow->getNativeWindow()); // initialize ImGui layer
 
     m_defaultShader = std::make_unique<Shader>("shaders/default.vert", "shaders/default.frag");
 
@@ -71,7 +72,21 @@ void Application::run() {
             m_camera->processMouseMovement(xoffset, yoffset);
         }
 
+        // 3d rendering 
         render();
+
+        ImguiLayer::begin();
+        
+        ImGui::Begin("Engine Stats");
+        ImGui::Text("FPS: %.1f", 1.0f / deltaTime);
+        if (ImGui::CollapsingHeader("Model Transform")) {
+            ImGui::DragFloat3("Position", &m_models[0]->m_position.x, 0.1f);
+            ImGui::DragFloat3("Rotation", &m_models[0]->m_rotation.x, 1.0f);
+        }
+        ImGui::End();
+
+        ImguiLayer::end();
+
 
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;

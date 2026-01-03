@@ -36,6 +36,7 @@ add_executable(${EXECUTABLE_NAME}
     src/scene/Mesh.cc
     src/scene/Camera.cc
     src/input/Input.cc
+    src/gui/ImguiLayer.cc
 )
 
 # imgui related

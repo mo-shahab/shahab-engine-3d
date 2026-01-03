@@ -15,6 +15,7 @@
 #include "scene/Model.h"
 #include "scene/Camera.h"
 #include "input/Input.h"
+#include "gui/ImguiLayer.h"
 
 class Application {
 public: 
