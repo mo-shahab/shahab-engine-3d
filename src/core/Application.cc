@@ -20,7 +20,12 @@ Application::Application(const std::string& title)
     m_defaultShader = std::make_unique<Shader>("shaders/default.vert", "shaders/default.frag");
 
     auto bugatti = std::make_unique<Model>("bugatti/bugatti.obj");
-    m_models.push_back(std::move(bugatti));
+
+    m_scenes.push_back(std::make_unique<Scene>());
+    m_activeScene = m_scenes.back().get(); // will set the last added scene as active scene
+
+    m_activeScene->addModel(std::move(bugatti));
+
 
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
 }
@@ -76,13 +81,53 @@ void Application::run() {
         render();
 
         ImguiLayer::begin();
-        
-        ImGui::Begin("Engine Stats");
-        ImGui::Text("FPS: %.1f", 1.0f / deltaTime);
-        if (ImGui::CollapsingHeader("Model Transform")) {
-            ImGui::DragFloat3("Position", &m_models[0]->m_position.x, 0.1f);
-            ImGui::DragFloat3("Rotation", &m_models[0]->m_rotation.x, 1.0f);
+
+        ImGui::Begin("Engine Control Center");
+
+        // --- 1. PERFORMANCE SECTION ---
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "PERFORMANCE");
+        ImGui::Separator();
+
+        // Using a ternary check to prevent division by zero on frame 1
+        float fps = (deltaTime > 0.0f) ? 1.0f / deltaTime : 0.0f;
+        ImGui::Text("FPS: %.1f", fps);
+        ImGui::Text("Frame Time: %.3f ms", deltaTime * 1000.0f);
+
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        // --- 2. SCENE OUTLINER SECTION ---
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "SCENE OUTLINER");
+        ImGui::Separator();
+
+        auto& models = m_activeScene->getModels();
+
+        if (models.empty()) {
+            ImGui::Text("Scene is empty. Load a model to begin.");
+        } else {
+            for (size_t i = 0; i < models.size(); i++) {
+                Model* model = models[i].get();
+                
+                // PushID is critical here to keep sliders independent!
+                ImGui::PushID(static_cast<int>(i));
+
+                std::string label = "Object: " + model->getName();
+                
+                if (ImGui::CollapsingHeader(label.c_str())) {
+                    ImGui::Indent();
+                    
+                    ImGui::DragFloat3("Position", &model->m_position.x, 0.1f);
+                    ImGui::DragFloat3("Rotation", &model->m_rotation.x, 1.0f);
+                    ImGui::DragFloat3("Scale",    &model->m_scale.x,    0.01f);
+                    
+                    ImGui::Unindent();
+                }
+
+                ImGui::PopID();
+                ImGui::Spacing();
+            }
         }
+
         ImGui::End();
 
         ImguiLayer::end();
@@ -101,7 +146,8 @@ void Application::render() {
 
     glm::mat4 view = m_camera->getViewMatrix(); 
 
-    for (auto& model : m_models)
+    auto& models = m_activeScene->getModels();
+    for (auto& model : models)
         Renderer::submit(*m_defaultShader, *model, view, m_projectionMatrix);
 }
 

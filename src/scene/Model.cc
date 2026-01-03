@@ -115,6 +115,18 @@ void Model::drawModel()  {
     }
 }
 
+std::string Model::getName() const {
+    // Extract the file name from the file path
+    size_t lastSlash = m_filePath.find_last_of("/\\");
+    size_t lastDot = m_filePath.find_last_of(".");
+
+    if (lastDot == std::string::npos || lastDot < lastSlash) {
+        lastDot = m_filePath.length(); // No extension found
+    }
+
+    return m_filePath.substr(lastSlash + 1, lastDot - lastSlash - 1);
+}
+
 
 Model::~Model() {
     // Assimp's Importer automatically cleans up the scene

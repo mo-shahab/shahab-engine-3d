@@ -14,6 +14,7 @@
 #include "renderer/Renderer.h"
 #include "scene/Model.h"
 #include "scene/Camera.h"
+#include "scene/Scene.h"
 #include "input/Input.h"
 #include "gui/ImguiLayer.h"
 
@@ -31,7 +32,10 @@ private:
     std::unique_ptr<Window> m_mainWindow;
     bool m_isRunning;
 
-    std::vector<std::unique_ptr<Model>> m_models; 
+    // scenes related 
+    std::vector<std::unique_ptr<Scene>> m_scenes;
+    Scene* m_activeScene = nullptr;
+
     std::unique_ptr<Shader> m_defaultShader;
     std::unique_ptr<Camera> m_camera;
 

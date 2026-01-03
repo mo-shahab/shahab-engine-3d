@@ -30,6 +30,7 @@ public:
     Model(const std::string& filePath);
 
     void draw(Shader& shader);
+    std::string getName() const;
 
     ~Model();
 
