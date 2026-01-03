@@ -59,7 +59,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 
 # copying assets/ resources to the build directory
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/bugatti" 
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/models" 
      DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/shaders" 

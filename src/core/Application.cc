@@ -19,12 +19,16 @@ Application::Application(const std::string& title)
 
     m_defaultShader = std::make_unique<Shader>("shaders/default.vert", "shaders/default.frag");
 
-    auto bugatti = std::make_unique<Model>("bugatti/bugatti.obj");
+    auto test_model = std::make_unique<Model>("models/cottage_fbx.fbx");
 
     m_scenes.push_back(std::make_unique<Scene>());
     m_activeScene = m_scenes.back().get(); // will set the last added scene as active scene
 
-    m_activeScene->addModel(std::move(bugatti));
+    m_activeScene->addModel(std::move(test_model));
+
+    // auto bugatti2 = std::make_unique<Model>("bugatti/bugatti.obj");
+    // bugatti2->m_position = glm::vec3(20.0f, 0.0f, 0.0f); // Move it to the side
+    // m_activeScene->addModel(std::move(bugatti2));
 
 
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
@@ -145,6 +149,8 @@ void Application::render() {
     Renderer::clear(0.1f, 0.1f, 0.1f, 1.0f);
 
     glm::mat4 view = m_camera->getViewMatrix(); 
+
+    Renderer::drawViewportGizmo(view, m_projectionMatrix);
 
     auto& models = m_activeScene->getModels();
     for (auto& model : models)

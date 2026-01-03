@@ -9,13 +9,36 @@ Model::Model(const std::string& filePath)
     m_rotation(glm::vec3(0.0f)),
     m_scale(glm::vec3(1.0f)),
     m_rootNode(nullptr), 
-    m_numMeshes(0) {
+    m_numMeshes(0) 
+{
 
+    loadModel(filePath);
+    if (m_scene == nullptr) {
+        std::cerr << "Failed to load model: " << filePath << std::endl;
+        return;
+    }
+
+    processMeshes();
+    std::cout << "Successfully loaded: " << m_filePath << " with " << m_numMeshes << " meshes." << std::endl;
+}
+
+void Model::loadModel(const std::string& path) {
+
+    unsigned int flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices;
+
+    std::string ext = path.substr(path.find_last_of('.') + 1); // substring after last dot
+    for(auto& c: ext) c = static_cast<char>(std::tolower(c)); // convert to lower case
+
+    if(ext == "obj") {
+        flags |= aiProcess_FlipUVs; // Example: flip UVs for OBJ files
+    } 
+    else if (ext == "fbx") {
+        flags |= aiProcess_GenNormals; // Example: generate normals for FBX files
+    }
+    
     m_scene = m_importer.ReadFile(
-        filePath, 
-        aiProcess_CalcTangentSpace       |
-        aiProcess_Triangulate            |
-        aiProcess_JoinIdenticalVertices  |
+        path, 
+        flags | aiProcess_CalcTangentSpace       | aiProcess_LimitBoneWeights        |
         aiProcess_SortByPType
     );
 
@@ -28,10 +51,6 @@ Model::Model(const std::string& filePath)
 
     m_rootNode = m_scene->mRootNode;
     m_numMeshes = m_scene->mNumMeshes;
-
-    processMeshes();
-
-    std::cout << "Successfully loaded: " << m_filePath << " with " << m_numMeshes << " meshes." << std::endl;
 }
 
 void Model::processMeshes() {

@@ -7,6 +7,7 @@
 #include <assimp/postprocess.h>
 #include <iostream>
 #include <string>
+#include <cctype>
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/type_ptr.hpp>
@@ -38,6 +39,7 @@ private:
     std::string m_filePath;
     Assimp::Importer m_importer;
 
+    void loadModel(const std::string& path);
     void processMeshes();
     void drawModel();
 };
