@@ -3,7 +3,8 @@
 Application::Application(const std::string& title)
     : m_mainWindow(std::make_unique<Window>(1280, 720, title))
     , m_camera(std::make_unique<Camera>(glm::vec3(0.0f, 10.0f, 45.0f)))
-    , m_isRunning(false) {
+    , m_isRunning(false) 
+{
 
     glfwMakeContextCurrent(m_mainWindow->getNativeWindow());
 
@@ -26,8 +27,10 @@ Application::Application(const std::string& title)
 
     m_activeScene->addModel(std::move(test_model));
 
-    // auto bugatti2 = std::make_unique<Model>("bugatti/bugatti.obj");
-    // bugatti2->m_position = glm::vec3(20.0f, 0.0f, 0.0f); // Move it to the side
+    // auto bugatti2 = std::make_unique<Model>("models/bugatti/bugatti.obj");
+    // bugatti2->m_position = glm::vec3(20.0f, 0.0f, 0.0f);
+    // bugatti2->m_rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    // bugatti2->m_scale    = glm::vec3(1.0f, 1.0f, 1.0f);
     // m_activeScene->addModel(std::move(bugatti2));
 
 

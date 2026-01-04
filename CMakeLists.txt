@@ -38,6 +38,8 @@ add_executable(${EXECUTABLE_NAME}
     src/input/Input.cc
     src/gui/ImguiLayer.cc
     src/scene/Scene.cc 
+    src/scene/TextureLoader.cc
+    src/utils/StbImageImpl.cc
 )
 
 # imgui related
@@ -47,9 +49,13 @@ file(GLOB IMGUI_SOURCES
     ${IMGUI_PATH}/backends/*.cpp
 )
 
+# stb image related
+set(STB_IMAGE_PATH ${CMAKE_SOURCE_DIR}/vendor/stb)
+
 target_include_directories(${EXECUTABLE_NAME} PRIVATE 
     ${IMGUI_PATH} 
     ${IMGUI_PATH}/backends
+    ${STB_IMAGE_PATH}
 )
 
 target_sources(${EXECUTABLE_NAME} PRIVATE ${IMGUI_SOURCES})

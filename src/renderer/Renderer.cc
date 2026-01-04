@@ -40,6 +40,7 @@ void Renderer::submit(Shader& shader, Model& model, const glm::mat4& view, const
     // in the shader
     shader.setMat4("u_View", view);
     shader.setMat4("u_Projection", projection);
+    shader.setMat4("u_Model", model.getModelMatrix());
 
     model.draw(shader);
 

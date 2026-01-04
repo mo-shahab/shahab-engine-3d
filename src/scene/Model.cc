@@ -11,6 +11,11 @@ Model::Model(const std::string& filePath)
     m_rootNode(nullptr), 
     m_numMeshes(0) 
 {
+    size_t lastSlash = filePath.find_last_of("/\\");
+    std::string directory = (lastSlash == std::string::npos) ? "." : filePath.substr(0, lastSlash);
+
+    std::cout << "[Debug] Model directory set to: " << directory << std::endl;
+    m_textureLoader.m_directory = directory;
 
     loadModel(filePath);
     if (m_scene == nullptr) {
@@ -62,6 +67,7 @@ void Model::processMeshes() {
         std::vector<unsigned int> indices;
 
         std::string meshName = mesh->mName.C_Str();
+        std::cout << "[Debug] Processing mesh: " << meshName << " with " << mesh->mNumVertices << " vertices and " << mesh->mNumFaces << " faces." << std::endl;
 
         for(unsigned int v = 0; v < mesh->mNumVertices; v++) {
             Vertex vertex;
@@ -93,6 +99,51 @@ void Model::processMeshes() {
             vertices.push_back(vertex);
         }
 
+        std::cout << "Mesh " << i << " material index: " << mesh->mMaterialIndex << std::endl;
+
+
+        std::vector<Texture> textures;
+        aiColor4D diffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        //loading the textures for the mesh
+        if(mesh->mMaterialIndex >= 0) {
+            aiMaterial* material = m_scene->mMaterials[mesh->mMaterialIndex];
+            material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+
+            printAllTextureTypes(material);
+
+            // DEBUG: Print counts for common types
+            int dCount = material->GetTextureCount(aiTextureType_DIFFUSE);
+            int aCount = material->GetTextureCount(aiTextureType_AMBIENT);
+            int bCount = material->GetTextureCount(aiTextureType_BASE_COLOR); // If using Assimp 5.1+
+
+            if(dCount > 0 || aCount > 0) {
+                std::cout << "Material " << mesh->mMaterialIndex << " has " << dCount << " diffuse and " << aCount << " ambient textures." << std::endl;
+            }
+
+            // Try loading Ambient if Diffuse is 0
+            std::vector<Texture> diffuseMaps = m_textureLoader.loadTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+            if(diffuseMaps.empty())
+                diffuseMaps = m_textureLoader.loadTextures(material, aiTextureType_BASE_COLOR, "texture_diffuse");
+            if(diffuseMaps.empty())
+                diffuseMaps = m_textureLoader.loadTextures(material, aiTextureType_AMBIENT, "texture_diffuse");
+            if(diffuseMaps.empty())
+                diffuseMaps = m_textureLoader.loadTextures(material, aiTextureType_UNKNOWN, "texture_diffuse");
+            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+            std::vector<Texture> specularMaps = m_textureLoader.loadTextures(material, aiTextureType_SPECULAR, "texture_specular");
+            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        }
+
+
+        glm::vec4 baseColor(diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a);
+
+        if (diffuseColor.r == 0 && diffuseColor.g == 0 && diffuseColor.b == 0) {
+            // If the material color is pitch black, default to a light grey 
+            // so we can actually see the model.
+            baseColor = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
+        }
+
         for(unsigned int f = 0; f < mesh->mNumFaces; f++) {
             aiFace face = mesh->mFaces[f];
             for(unsigned int j = 0; j < face.mNumIndices; j++) {
@@ -100,7 +151,7 @@ void Model::processMeshes() {
             }
         }
 
-        m_meshes.emplace_back(vertices, indices, meshName);
+        m_meshes.emplace_back(vertices, indices, textures, baseColor, meshName);
     }
 }
 
@@ -122,14 +173,14 @@ void Model::draw(Shader& shader) {
     
     shader.setMat4("u_Model", transform);
 
-    drawModel();
+    drawModel(shader);
 }
 
-void Model::drawModel()  {
+void Model::drawModel(Shader& shader)  {
     for(auto& mesh : m_meshes) {
         // this is for that check box list and stuff so yeah
         if(mesh.m_isVisible) {
-            mesh.drawMesh();
+            mesh.drawMesh(shader);
         }
     }
 }
@@ -146,7 +197,30 @@ std::string Model::getName() const {
     return m_filePath.substr(lastSlash + 1, lastDot - lastSlash - 1);
 }
 
+glm::mat4 Model::getModelMatrix() const {
+    glm::mat4 model = glm::mat4(1.0f);
+    // 1. Translation
+    model = glm::translate(model, m_position);
+    // 2. Rotation (Order: Y -> X -> Z is common)
+    model = glm::rotate(model, glm::radians(m_rotation.x), glm::vec3(1, 0, 0));
+    model = glm::rotate(model, glm::radians(m_rotation.y), glm::vec3(0, 1, 0));
+    model = glm::rotate(model, glm::radians(m_rotation.z), glm::vec3(0, 0, 1));
+    // 3. Scale
+    model = glm::scale(model, m_scale);
+    return model;
+}
 
 Model::~Model() {
     // Assimp's Importer automatically cleans up the scene
+}
+
+// for debugging texture types
+void printAllTextureTypes(aiMaterial* material) {
+    std::cout << "hello" << std::endl;
+    for (int t = aiTextureType_NONE; t <= aiTextureType_UNKNOWN; ++t) {
+        int count = material->GetTextureCount((aiTextureType)t);
+        if (count > 0) {
+            std::cout << "  Texture type " << t << " has " << count << " textures." << std::endl;
+        }
+    }
 }

@@ -14,6 +14,7 @@
 
 #include "renderer/Shaders.h"
 #include "scene/Mesh.h"
+#include "scene/TextureLoader.h"
 
 class Model {
 public:
@@ -32,16 +33,21 @@ public:
 
     void draw(Shader& shader);
     std::string getName() const;
+    glm::mat4 getModelMatrix() const;
 
     ~Model();
 
 private: 
     std::string m_filePath;
     Assimp::Importer m_importer;
+    std::string m_textureDir;
+    TextureLoader m_textureLoader;
 
     void loadModel(const std::string& path);
     void processMeshes();
-    void drawModel();
+    void drawModel(Shader& shader);
 };
+
+void printAllTextureTypes(aiMaterial* material);
 
 #endif // MODEL_H

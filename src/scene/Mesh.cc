@@ -2,9 +2,18 @@
 
 Mesh::Mesh(std::vector<Vertex> vertices
     , std::vector<unsigned int> indices
+    , std::vector<Texture> textures
+    , glm::vec4 baseColor
     , const std::string& name
 ) 
-    : m_vertices(vertices), m_indices(indices), m_name(name), m_VAO(0), m_VBO(0), m_EBO(0) 
+    : m_vertices(vertices)
+    , m_indices(indices)
+    , m_textures(textures)
+    , m_baseColor(baseColor)
+    , m_name(name)
+    , m_VAO(0)
+    , m_VBO(0)
+    , m_EBO(0) 
 {
     setupMesh(); 
 }
@@ -49,10 +58,37 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-void Mesh::drawMesh() {
+void Mesh::drawMesh(Shader& shader) {
+    // drawing the textures on the mesh
+
+    shader.setVec4("u_BaseColor", m_baseColor); 
+    shader.setBool("u_HasTexture", !m_textures.empty());
+
+    for(unsigned int i = 0; i < m_textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+        // retrieve texture number (the N in diffuse_textureN)
+        std::string number;
+        std::string name = m_textures[i].type;
+        if(name == "texture_diffuse")
+            number = std::to_string(i + 1);
+        else if(name == "texture_specular")
+            number = std::to_string(i + 1);
+
+        // // set the sampler to the correct texture unit
+        shader.setInt((name + number).c_str(), i);
+
+        // now set the sampler to the correct texture unit
+        glUniform1i(glGetUniformLocation(shader.m_ID, (name + number).c_str()), i);
+        // and finally bind the texture
+        glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
+    }
+
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    // set back to default
+    glActiveTexture(GL_TEXTURE0);
 }
 
 Mesh::~Mesh() {
