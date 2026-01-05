@@ -61,6 +61,7 @@ Skybox::Skybox(const std::vector<std::string>& faces) {
 
 void Skybox::draw(const glm::mat4& view, const glm::mat4& projection) {
     glDepthFunc(GL_LEQUAL); 
+    glDepthMask(GL_FALSE);
     m_shader->use();
 
     glm::mat4 viewNoTranslation = glm::mat4(glm::mat3(view)); 
@@ -73,5 +74,6 @@ void Skybox::draw(const glm::mat4& view, const glm::mat4& projection) {
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     
+    glDepthMask(GL_FALSE);
     glDepthFunc(GL_LESS); // Set back to default
 }

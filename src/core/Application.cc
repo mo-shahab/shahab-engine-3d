@@ -1,5 +1,20 @@
 #include "core/Application.h"
 
+// temporary function to draw the model hierarchy in ImGui
+static void DrawModelNode(Model* model) {
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+    if (model->m_children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
+
+    if (ImGui::TreeNodeEx((void*)model, flags, "%s", model->getName().c_str())) {
+        ImGui::DragFloat3("Position", &model->m_position.x, 0.1f);
+
+        for (auto* child : model->m_children) {
+            DrawModelNode(child);
+        }
+        ImGui::TreePop();
+    }
+}
+
 Application::Application(const std::string& title)
     : m_mainWindow(std::make_unique<Window>(1280, 720, title))
     , m_camera(std::make_unique<Camera>(glm::vec3(0.0f, 10.0f, 45.0f)))
@@ -23,16 +38,23 @@ Application::Application(const std::string& title)
     auto test_model = std::make_unique<Model>("models/cat/12221_Cat_v1_l3.obj");
 
     m_scenes.push_back(std::make_unique<Scene>());
-    m_activeScene = m_scenes.back().get(); // will set the last added scene as active scene
+    m_activeScene = m_scenes.back().get();
 
     m_activeScene->addModel(std::move(test_model));
 
-    // auto bugatti2 = std::make_unique<Model>("models/bugatti/bugatti.obj");
+    auto bugatti2 = std::make_unique<Model>("models/bugatti/bugatti.obj");
     // bugatti2->m_position = glm::vec3(20.0f, 0.0f, 0.0f);
     // bugatti2->m_rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     // bugatti2->m_scale    = glm::vec3(1.0f, 1.0f, 1.0f);
-    // m_activeScene->addModel(std::move(bugatti2));
+    m_activeScene->addModel(std::move(bugatti2));
 
+    // Now get the raw pointers from the scene
+    Model* catModel = m_activeScene->getModel(0);      // first model added
+    Model* bugattiModel = m_activeScene->getModel(1);  // second model added
+
+    if (bugattiModel && catModel) {
+        bugattiModel->addChild(catModel);
+    }
 
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
 }
@@ -84,6 +106,8 @@ void Application::run() {
             m_camera->processMouseMovement(xoffset, yoffset);
         }
 
+        update(deltaTime);
+
         // 3d rendering 
         render();
 
@@ -114,24 +138,10 @@ void Application::run() {
         } else {
             for (size_t i = 0; i < models.size(); i++) {
                 Model* model = models[i].get();
-                
-                // PushID is critical here to keep sliders independent!
-                ImGui::PushID(static_cast<int>(i));
-
-                std::string label = "Object: " + model->getName();
-                
-                if (ImGui::CollapsingHeader(label.c_str())) {
-                    ImGui::Indent();
-                    
-                    ImGui::DragFloat3("Position", &model->m_position.x, 0.1f);
-                    ImGui::DragFloat3("Rotation", &model->m_rotation.x, 1.0f);
-                    ImGui::DragFloat3("Scale",    &model->m_scale.x,    0.01f);
-                    
-                    ImGui::Unindent();
+                // Only draw root models (those without a parent)
+                if (!model->m_parent) {
+                    DrawModelNode(model);
                 }
-
-                ImGui::PopID();
-                ImGui::Spacing();
             }
         }
 
@@ -155,11 +165,24 @@ void Application::render() {
     glm::mat4 projection = m_camera->getProjectionMatrix(1280.0f / 720.0f);
 
     Renderer::drawViewportGizmo(view, projection);
-    Renderer::beginScene(view, projection);
+    Renderer::beginScene(view, projection); // this is where the skybox and stuff is 
 
     auto& models = m_activeScene->getModels();
     for (auto& model : models)
         Renderer::submit(*m_defaultShader, *model, view, projection);
+}
+
+void Application::update(float deltaTime) {
+    Model* car = m_activeScene->getModel(0); // this is bugatti
+    Model* cat = m_activeScene->getModel(1); // this is cat 
+
+    if (car) {
+        car->m_rotation.y += 20.0f * deltaTime; // rotate
+    }
+
+    if(cat) {
+        cat->m_position = glm::vec3(25.0f, 0.0f,0.0f );
+    }
 }
 
 void Application::stop() {

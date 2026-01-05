@@ -11,6 +11,7 @@
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/type_ptr.hpp>
+#include <memory>
 
 #include "renderer/Shaders.h"
 #include "scene/Mesh.h"
@@ -21,6 +22,8 @@ public:
     // filePath is the path to the 3D model file
     const aiScene* m_scene;
     unsigned int m_numMeshes;
+    const Model* m_parent = nullptr; // by default its nullptr
+    std::vector<Model*> m_children; // stores children models
 
     glm::vec3 m_position;
     glm::vec3 m_rotation;
@@ -33,7 +36,12 @@ public:
 
     void draw(Shader& shader);
     std::string getName() const;
+
     glm::mat4 getModelMatrix() const;
+    glm::mat4 getWorldMatrix() const;
+    glm::mat4 getLocalMatrix() const;
+
+    void addChild(Model* child);
 
     ~Model();
 

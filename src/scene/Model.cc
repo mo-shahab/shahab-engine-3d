@@ -179,7 +179,7 @@ void Model::draw(Shader& shader) {
     // scaling
     transform = glm::scale(transform, glm::vec3(m_scale));
     
-    shader.setMat4("u_Model", transform);
+    shader.setMat4("u_Model", getWorldMatrix());
 
     drawModel(shader);
 }
@@ -218,6 +218,29 @@ glm::mat4 Model::getModelMatrix() const {
     return model;
 }
 
+glm::mat4 Model::getWorldMatrix() const {
+    glm::mat4 local = getLocalMatrix();
+
+    if(m_parent) {
+        return m_parent->getWorldMatrix() * local;
+    }
+    return local;
+}
+
+glm::mat4 Model::getLocalMatrix() const {
+    glm::mat4 transform = glm::mat4(1.0f);
+
+    // transformations
+    transform = glm::translate(transform, m_position);
+    // rotations
+    transform = glm::rotate(transform, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    // scaling
+    transform = glm::scale(transform, glm::vec3(m_scale));
+    return transform;
+}
+
 Model::~Model() {
     // Assimp's Importer automatically cleans up the scene
 }
@@ -231,4 +254,9 @@ void printAllTextureTypes(aiMaterial* material) {
             std::cout << "  Texture type " << t << " has " << count << " textures." << std::endl;
         }
     }
+}
+
+void Model::addChild(Model* child) {
+    child->m_parent = this; // set the parent pointer to the child thats being added
+    m_children.push_back(child);
 }

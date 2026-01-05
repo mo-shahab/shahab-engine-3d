@@ -94,6 +94,7 @@ void Mesh::drawMesh(Shader& shader) {
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
 
+    shader.setVec4("u_BaseColor", m_baseColor);
     shader.setBool("u_HasDiffuse", hasDiffuse);
     shader.setBool("u_HasSpecular", hasSpecular);
     shader.setBool("u_HasNormalMap", hasNormal);
