@@ -20,7 +20,7 @@ Application::Application(const std::string& title)
 
     m_defaultShader = std::make_unique<Shader>("shaders/default.vert", "shaders/default.frag");
 
-    auto test_model = std::make_unique<Model>("models/cottage_fbx.fbx");
+    auto test_model = std::make_unique<Model>("models/cat/12221_Cat_v1_l3.obj");
 
     m_scenes.push_back(std::make_unique<Scene>());
     m_activeScene = m_scenes.back().get(); // will set the last added scene as active scene

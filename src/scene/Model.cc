@@ -131,8 +131,16 @@ void Model::processMeshes() {
                 diffuseMaps = m_textureLoader.loadTextures(material, aiTextureType_UNKNOWN, "texture_diffuse");
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
+            // specular maps
             std::vector<Texture> specularMaps = m_textureLoader.loadTextures(material, aiTextureType_SPECULAR, "texture_specular");
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+            // normal maps 
+            std::vector<Texture> normalMaps = m_textureLoader.loadTextures(material, aiTextureType_HEIGHT, "texture_normal");
+            if(normalMaps.empty()) {
+                normalMaps = m_textureLoader.loadTextures(material, aiTextureType_NORMALS, "texture_normal");
+            }
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
         }
 
 

@@ -59,36 +59,33 @@ void Mesh::setupMesh() {
 }
 
 void Mesh::drawMesh(Shader& shader) {
-    // drawing the textures on the mesh
-
-    shader.setVec4("u_BaseColor", m_baseColor); 
+    shader.use();
     shader.setBool("u_HasTexture", !m_textures.empty());
 
+    unsigned int diffuseNr  = 1;
+    unsigned int specularNr = 1;
+
     for(unsigned int i = 0; i < m_textures.size(); i++) {
-        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-        // retrieve texture number (the N in diffuse_textureN)
+        glActiveTexture(GL_TEXTURE0 + i); 
+        
         std::string number;
         std::string name = m_textures[i].type;
+        
         if(name == "texture_diffuse")
-            number = std::to_string(i + 1);
+            number = std::to_string(diffuseNr++);
         else if(name == "texture_specular")
-            number = std::to_string(i + 1);
+            number = std::to_string(specularNr++);
 
-        // // set the sampler to the correct texture unit
+        // This sets "texture_diffuse1" to 0, "texture_diffuse2" to 1, etc.
         shader.setInt((name + number).c_str(), i);
-
-        // now set the sampler to the correct texture unit
-        glUniform1i(glGetUniformLocation(shader.m_ID, (name + number).c_str()), i);
-        // and finally bind the texture
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
 
     glBindVertexArray(m_VAO);
-    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(m_indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
-    // set back to default
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0); // Clean up
 }
 
 Mesh::~Mesh() {
