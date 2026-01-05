@@ -23,9 +23,12 @@ public:
 
     std::vector<Texture> loadTextures(aiMaterial* material, aiTextureType type, std::string typeName);
 private:
-    std::vector<Texture> m_texturesLoaded; // to avoid loading duplicate textures
 
+    std::vector<Texture> m_texturesLoaded; // to avoid loading duplicate textures
     unsigned int loadTextureFromFile(const std::string& path, const std::string& directory);
 };
+
+//helper
+unsigned int loadCubemap(const std::vector<std::string>& faces);
 
 #endif // TEXTURE_H

@@ -1,32 +1,6 @@
-src/
-├── core/
-│   ├── Application.cc
-│   ├── Application.h
-│   ├── Window.cc
-│   ├── Window.h
-│   └── Time.h
-│
-├── renderer/
-│   ├── Renderer.cc
-│   ├── Renderer.h
-│   └── RenderContext.h
-│
-├── scene/
-│   ├── Scene.cc
-│   ├── Scene.h
-│
-├── input/
-│   ├── Input.cc
-│   └── Input.h
-│
-├── ui/
-│   ├── ImGuiLayer.cc
-│   └── ImGuiLayer.h
-│
-├── Main.cc
-
-
-seperate the code like
-1. what to draw
-2. how to draw
-3. how to run 
+Feature,Current State,Goal State
+Object Management,Hardcoded in main.cc,Dynamic Scene Graph / ECS
+Visuals,Basic Phong Lighting,PBR (Physically Based Rendering)
+Atmosphere,Grey Void,Skybox & Environment Lighting
+Shadows,None,Real-time Shadow Maps
+Workflow,Recompiling Code,Editor-style Save/Load

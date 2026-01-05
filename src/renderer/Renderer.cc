@@ -3,7 +3,9 @@
 // static member definitions
 GLuint Renderer::s_LineVAO = 0;
 GLuint Renderer::s_LineVBO = 0;
+
 std::unique_ptr<Shader> Renderer::s_lineShader = nullptr;
+std::unique_ptr<Skybox> Renderer::s_skybox = nullptr;   
 
 void Renderer::init() {
     glEnable(GL_DEPTH_TEST);
@@ -22,6 +24,18 @@ void Renderer::init() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     
     s_lineShader = std::make_unique<Shader>("shaders/simple_color.vert", "shaders/simple_color.frag");
+
+    // skybox initialization
+    std::vector<std::string> faces
+    {
+        "textures/skybox/right.jpg",
+        "textures/skybox/left.jpg",
+        "textures/skybox/top.jpg",
+        "textures/skybox/bottom.jpg",
+        "textures/skybox/front.jpg",
+        "textures/skybox/back.jpg"
+    };
+    s_skybox = std::make_unique<Skybox>(faces);
 }
 
 void Renderer::clear(float r, float g, float b, float a) {
@@ -43,6 +57,14 @@ void Renderer::submit(Shader& shader, Model& model, const glm::mat4& view, const
     shader.setMat4("u_Model", model.getModelMatrix());
 
     model.draw(shader);
+
+}
+
+void Renderer::beginScene(glm::mat4& view, glm::mat4& projection) {
+    // draw skybox first
+    if(s_skybox) {
+        s_skybox->draw(view, projection);
+    }
 
     drawGrid(view, projection);
     drawAxes(view, projection);

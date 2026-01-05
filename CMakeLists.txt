@@ -40,6 +40,7 @@ add_executable(${EXECUTABLE_NAME}
     src/scene/Scene.cc 
     src/scene/TextureLoader.cc
     src/utils/StbImageImpl.cc
+    src/scene/Skybox.cc
 )
 
 # imgui related
@@ -69,6 +70,9 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/models"
      DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/shaders" 
+     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/textures" 
      DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 

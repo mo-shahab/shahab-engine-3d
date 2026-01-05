@@ -37,6 +37,7 @@ class Camera {
 
 
         glm::mat4 getViewMatrix();
+        glm::mat4 getProjectionMatrix(float aspectRatio);
 
         void processKeyboard(Camera_Movement direction, float deltaTime);
         void processMouseMovement(float xoffset, float yoffset);

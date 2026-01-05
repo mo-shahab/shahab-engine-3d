@@ -152,12 +152,14 @@ void Application::render() {
     Renderer::clear(0.1f, 0.1f, 0.1f, 1.0f);
 
     glm::mat4 view = m_camera->getViewMatrix(); 
+    glm::mat4 projection = m_camera->getProjectionMatrix(1280.0f / 720.0f);
 
-    Renderer::drawViewportGizmo(view, m_projectionMatrix);
+    Renderer::drawViewportGizmo(view, projection);
+    Renderer::beginScene(view, projection);
 
     auto& models = m_activeScene->getModels();
     for (auto& model : models)
-        Renderer::submit(*m_defaultShader, *model, view, m_projectionMatrix);
+        Renderer::submit(*m_defaultShader, *model, view, projection);
 }
 
 void Application::stop() {

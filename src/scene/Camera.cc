@@ -17,6 +17,10 @@ glm::mat4 Camera::getViewMatrix() {
     return glm::lookAt(m_position, m_position + m_front, m_up);
 }
 
+glm::mat4 Camera::getProjectionMatrix(float aspectRatio) {
+    return glm::perspective(glm::radians(m_zoom), aspectRatio, 0.1f, 100.0f);
+}
+
 void Camera::processKeyboard(Camera_Movement direction, float deltaTime) {
     float velocity = m_movementSpeed * deltaTime;
     if (direction == FORWARD) m_position += m_front * velocity;

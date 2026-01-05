@@ -62,8 +62,13 @@ void Mesh::drawMesh(Shader& shader) {
     shader.use();
     shader.setBool("u_HasTexture", !m_textures.empty());
 
+    bool hasDiffuse = false;
+    bool hasSpecular = false;
+    bool hasNormal = false;
+
     unsigned int diffuseNr  = 1;
     unsigned int specularNr = 1;
+    unsigned int normalNr = 1;
 
     for(unsigned int i = 0; i < m_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i); 
@@ -71,15 +76,27 @@ void Mesh::drawMesh(Shader& shader) {
         std::string number;
         std::string name = m_textures[i].type;
         
-        if(name == "texture_diffuse")
+        if(name == "texture_diffuse") {
             number = std::to_string(diffuseNr++);
-        else if(name == "texture_specular")
+            hasDiffuse = true;
+        }
+        else if(name == "texture_specular") {
             number = std::to_string(specularNr++);
+            hasSpecular = true;
+        }
+        else if(name == "texture_normal") {
+            number = std::to_string(normalNr++);
+            hasNormal = true;
+        }
 
         // This sets "texture_diffuse1" to 0, "texture_diffuse2" to 1, etc.
         shader.setInt((name + number).c_str(), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
+
+    shader.setBool("u_HasDiffuse", hasDiffuse);
+    shader.setBool("u_HasSpecular", hasSpecular);
+    shader.setBool("u_HasNormalMap", hasNormal);
 
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(m_indices.size()), GL_UNSIGNED_INT, 0);
